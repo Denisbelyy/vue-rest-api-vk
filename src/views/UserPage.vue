@@ -59,7 +59,8 @@ export default {
   computed: {
     ...mapState({
       token: state => state.token,
-      users: state => state.users
+      users: state => state.users,
+      apiUrl: state => state.apiUrl
     }),
     idUser() {
       return this.$route.params.id;
@@ -89,7 +90,7 @@ export default {
     async getUser() {
       axios
         .get(
-          `/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,sex&v=5.52`
+          `${this.apiUrl}/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,sex&v=5.52`
         )
         .then(response => {
           this.user = response.data.response[0];
@@ -98,7 +99,7 @@ export default {
     async getWall() {
       axios
         .get(
-          `/method/wall.get?owner_id=${this.idUser}&access_token=${this.token}&v=5.52`
+          `${this.apiUrl}/method/wall.get?owner_id=${this.idUser}&access_token=${this.token}&v=5.52`
         )
         .then(response => {
           if (response.data.response.items) {

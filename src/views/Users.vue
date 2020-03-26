@@ -77,7 +77,8 @@ export default {
   computed: {
     ...mapState({
       users: state => state.users,
-      token: state => state.token
+      token: state => state.token,
+      apiUrl: state => state.apiUrl
     }),
     ...mapGetters(["sortFriends"])
   },
@@ -94,7 +95,7 @@ export default {
     getUser() {
       axios
         .get(
-          `/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,photo_100,sex&v=5.52`
+          `${this.apiUrl}/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,photo_100,sex&v=5.52`
         )
         .then(async response => {
           const user = response.data.response[0];
@@ -112,7 +113,7 @@ export default {
     async getFriends(id) {
       return axios
         .get(
-          `/method/friends.get?user_id=${id}&access_token=${this.token}&fields=photo_50&v=5.52`
+          `${this.apiUrl}/method/friends.get?user_id=${id}&access_token=${this.token}&fields=photo_50&v=5.52`
         )
         .then(res => {
           return res.data.response;

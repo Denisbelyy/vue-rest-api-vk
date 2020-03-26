@@ -8,6 +8,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    apiUrl: "",
     token:
       "ca7570f1ca7570f1ca7570f1c9ca050b94cca75ca7570f1940dde0118eaeafcaeaf884c",
     users: {},
@@ -39,6 +40,9 @@ export default new Vuex.Store({
     },
     CLEAR_FRIENDS(state) {
       state.friends = [];
+    },
+    CHANGE_API_URL(state, url) {
+      state.apiUrl = url;
     }
   },
   actions: {
@@ -54,6 +58,9 @@ export default new Vuex.Store({
     },
     clearFriends(context) {
       context.commit("CLEAR_FRIENDS");
+    },
+    changeAPIUrl(context, url) {
+      context.commit("CHANGE_API_URL", url);
     }
   }
 });
