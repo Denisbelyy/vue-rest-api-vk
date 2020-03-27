@@ -15,15 +15,17 @@
       >
         Построить
       </button>
+      <div class="home__add-info" v-if="showInfo">
+        {{ infoText }}
+      </div>
     </div>
-
     <div class="users">
       <div class="users__list">
         <h2>Добавленные пользователи:</h2>
         <div
           class="user"
           :class="{ active: selectedUser.includes(user.id) }"
-          v-for="user in users"
+          v-for="user in sortUsers"
           @click="selectUser(user.id)"
           :key="user.id"
         >
@@ -52,7 +54,6 @@
           :class="`friend background-${user.countMatch}`"
           @click="goUserPage(user.id)"
         >
-          <img :src="user.photo_50" class="friend__pic" />
           <div>{{ user.last_name }} {{ user.first_name }}</div>
         </div>
       </div>
@@ -71,6 +72,8 @@ export default {
   data() {
     return {
       idUser: "",
+      showInfo: false,
+      infoText: "",
       selectedUser: []
     };
   },
@@ -78,9 +81,9 @@ export default {
     ...mapState({
       users: state => state.users,
       token: state => state.token,
-      apiUrl: state => state.apiUrl
+      friends: state => state.friends
     }),
-    ...mapGetters(["sortFriends"])
+    ...mapGetters(["sortFriends", "sortUsers"])
   },
   methods: {
     ...mapActions(["addUser", "removeUser", "clearFriends", "addFriends"]),
@@ -95,13 +98,22 @@ export default {
     getUser() {
       axios
         .get(
-          `${this.apiUrl}/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,photo_100,sex&v=5.52`
+          `/method/users.get?user_ids=${this.idUser}&access_token=${this.token}&fields=bdate,photo_100,sex&v=5.52`
         )
         .then(async response => {
-          const user = response.data.response[0];
-          const friends = await this.getFriends(user.id);
-          this.addUser({ ...user, ...friends });
           this.idUser = "";
+          const user = response.data.response[0];
+          if (user.deactivated) {
+            this.showInfo = true;
+            this.infoText = `Пользователь #${user.id} удален`;
+            setTimeout(() => {
+              this.showInfo = false;
+            }, 2000);
+          } else {
+            this.showInfo = false;
+            const friends = await this.getFriends(user.id);
+            this.addUser({ ...user, ...friends });
+          }
         });
     },
     goUserPage(id) {
@@ -113,7 +125,7 @@ export default {
     async getFriends(id) {
       return axios
         .get(
-          `${this.apiUrl}/method/friends.get?user_id=${id}&access_token=${this.token}&fields=photo_50&v=5.52`
+          `/method/friends.get?user_id=${id}&access_token=${this.token}&fields=first_name,last_name&v=5.52`
         )
         .then(res => {
           return res.data.response;
@@ -146,9 +158,11 @@ export default {
       this.clearFriends();
       const allFriends = [];
       this.selectedUser.forEach(id => {
-        if (this.users[id].items) {
-          allFriends.push(...this.users[id].items);
-        }
+        this.users.forEach(el => {
+          if (el.id === id) {
+            allFriends.push(...el.items);
+          }
+        });
       });
       this.addFriends(allFriends);
     }
@@ -158,7 +172,15 @@ export default {
 <style lang="scss">
 .home {
   &__add {
-    margin: 10px;
+    margin: 10px 10px 20px;
+    position: relative;
+    &-info {
+      position: absolute;
+      width: 200px;
+      left: 50%;
+      margin-left: -100px;
+      top: 45px;
+    }
   }
 }
 .user {
@@ -186,7 +208,7 @@ export default {
     width: 50%;
     .friend {
       display: flex;
-      justify-content: start;
+      justify-content: flex-start;
       align-items: center;
       margin: 10px;
       padding: 5px;

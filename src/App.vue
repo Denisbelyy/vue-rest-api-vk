@@ -6,23 +6,7 @@
     <router-view />
   </div>
 </template>
-<script>
-import { mapActions } from "vuex";
 
-export default {
-  name: "App",
-  computed: {},
-  mounted() {
-    if (process.env.NODE_ENV === "production") {
-      const apiUrl = "https://api.vk.com";
-      this.changeAPIUrl(apiUrl);
-    }
-  },
-  methods: {
-    ...mapActions(["changeAPIUrl"])
-  }
-};
-</script>
 <style lang="scss">
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

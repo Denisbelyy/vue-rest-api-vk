@@ -1,48 +1,44 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import sortBy from "lodash/sortBy";
 import uniqBy from "lodash/uniqBy";
+import sortBy from "lodash/sortBy";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    apiUrl: "",
     token:
       "ca7570f1ca7570f1ca7570f1c9ca050b94cca75ca7570f1940dde0118eaeafcaeaf884c",
-    users: {},
+    users: [],
     friends: []
   },
   getters: {
+    sortUsers: state => {
+      return sortBy(state.users, ["last_name", "first_name"])
+    },
     sortFriends: state => {
-      state.friends.forEach(el => {
+      state.friends.forEach((el, index) => {
+        if (el.deactivated) {
+          state.friends.splice(index, 1);
+        }
         el.countMatch = state.friends.filter(item => item.id == el.id).length;
       });
-      return sortBy(
-        uniqBy(
-          state.friends.filter(el => !el.deactivated),
-          "id"
-        ),
-        ["last_name", "first_name"]
-      );
+      return uniqBy(state.friends, "id");
     }
   },
   mutations: {
     ADD_USER(state, user) {
-      state.users[user.id] = user;
+      state.users.push(user);
     },
     REMOVE_USER(state, id) {
-      Vue.delete(state.users, id);
+      state.users.splice(id, 1);
     },
     ADD_FRIENDS(state, friends) {
       state.friends.push(...friends);
     },
     CLEAR_FRIENDS(state) {
       state.friends = [];
-    },
-    CHANGE_API_URL(state, url) {
-      state.apiUrl = url;
     }
   },
   actions: {
@@ -58,9 +54,6 @@ export default new Vuex.Store({
     },
     clearFriends(context) {
       context.commit("CLEAR_FRIENDS");
-    },
-    changeAPIUrl(context, url) {
-      context.commit("CHANGE_API_URL", url);
     }
   }
 });
