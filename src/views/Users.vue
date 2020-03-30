@@ -25,7 +25,7 @@
         <div
           class="user"
           :class="{ active: selectedUser.includes(user.id) }"
-          v-for="user in sortUsers"
+          v-for="(user, index) in sortUsers"
           @click="selectUser(user.id)"
           :key="user.id"
         >
@@ -40,7 +40,7 @@
             <button @click="goUserPage(user.id)" class="button button-blue">
               Перейти
             </button>
-            <button @click="deleteUser(user.id)" class="button button-red">
+            <button @click="deleteUser(index)" class="button button-red">
               Удалить
             </button>
           </div>
